@@ -1,0 +1,73 @@
+
+고객정보 저장될 공간  ( 테이블)
+
+테이블
+ 
+crud   => create(insert ) , read( select ), u(update) , d(delete) 
+
+
+create table  acorntbl (
+    id  varchar2(10) primary key,
+    pw  varchar2(10) ,
+    name varchar2(10)
+);
+
+--crud   => create(insert ) , read( select ), u(update) , d(delete)  
+
+select *  from acorntbl ;
+insert into acorntbl values('usung0518', '1234', '권지언'); 
+insert into acorntbl values('boseong00', '1234', '김보성'); 
+insert into acorntbl values('Jys123', '9876', ' 정연수');
+insert into acorntbl values('sumni', '1234', '이수민');
+insert into acorntbl values('dongwoo12', '1234', '이동우');
+insert into acorntbl values('gusrl123', 'dks123', '윤현기');
+insert into acorntbl values('sulivun_03', '1234', '박시우');
+insert into acorntbl values('yerin0373', '1234', '박예린'); 
+insert into acorntbl values('yzei', '1234', '황예지'); 
+insert into acorntbl values('jitae', '1214', '최지태'); 
+insert into acorntbl values('sookyung', '1004', '박수경'); 
+insert into acorntbl values('yunseok', '123', '오윤석');
+insert into acorntbl values('LHJ0319', '1234', ' 이정호'); 
+insert into acorntbl values('gudxor8251', '1234', '임형택'); 
+insert into acorntbl values('che', '1234', '최하은');
+insert into acorntbl values('umin', '1234', '김유민');
+insert into acorntbl values('gill', '0000', '김민환');
+commit;
+select * from acorntbl;
+
+
+
+create table  acorntbl2 (
+    id  varchar2(10) primary key,
+    pw  varchar2(10) ,
+    name varchar2(10),
+    point number(6) 
+);
+
+--crud   => create(insert ) , read( select ), u(update) , d(delete)  
+
+select *  from acorntbl2 ;
+insert into acorntbl2 values('usung0518', '1234', '권지언',1500); 
+insert into acorntbl2 values('boseong00', '1234', '김보성',3000); 
+insert into acorntbl2 values('Jys123', '9876', ' 정연수',4000);
+insert into acorntbl2 values('sumni', '1234', '이수민',2000);
+insert into acorntbl2 values('dongwoo12', '1234', '이동우',100);
+insert into acorntbl2 values('gusrl123', 'dks123', '윤현기',5000);
+insert into acorntbl2 values('sulivun_03', '1234', '박시우',3400);
+insert into acorntbl2 values('yerin0373', '1234', '박예린',1200); 
+insert into acorntbl2 values('yzei', '1234', '황예지',6500); 
+insert into acorntbl2 values('jitae', '1214', '최지태',4500); 
+insert into acorntbl2 values('sookyung', '1004', '박수경',200); 
+insert into acorntbl2 values('yunseok', '123', '오윤석',700);
+insert into acorntbl2 values('LHJ0319', '1234', ' 이정호',5000); 
+insert into acorntbl2 values('gudxor8251', '1234', '임형택',2800); 
+insert into acorntbl2 values('che', '1234', '최하은',7800);
+insert into acorntbl2 values('umin', '1234', '김유민',4900);
+insert into acorntbl2 values('gill', '0000', '김민환',5900);
+insert into acorntbl2 (id) values('test' );
+commit;
+select * from acorntbl2;
+
+ 
+
+
