@@ -51,11 +51,11 @@ where m_point >= 2000;
 -- 5. 포인트가 2000점에서 3000점 사이의 고객이름, 전화번호 정보 조회하시오
 select m_name, m_tel, m_point
 from member_tbl_11
-where m_point between 2001 and 2999;
+where m_point between 2000 and 3000;
 
 select m_name, m_tel, m_point
 from member_tbl_11
-where m_point>2000 and m_point<3000;
+where m_point>=2000 and m_point<=3000;
 
 -- 6. 고객등급이 ‘01’인 고객이름, 전화번호 , 포인트 정보 조회하시오
 select m_name, m_tel, m_point
@@ -142,3 +142,21 @@ where m_grade='02' or m_name like '이%';
 select m_id, m_name, m_birthday
 from member_tbl_11
 where m_birthday < '04/05/01' or m_grade='03';
+
+
+--문제) MEMBER_TBL_11 테이블로부터 고객등급 조회하기
+SELECT M_GRADE 
+FROM MEMBER_TBL_11 ;
+
+--문제) MEMBER_TBL_11 테이블로부터 고객등급 조회하기, 중복된 값 제외하고 조회하기
+select distinct m_grade
+from member_tbl_11;
+
+--문제) 고객테이블로부터 아이디  USERID라는 이름으로 조회하기 (AS 는 생략가능함)
+select m_id USERID
+from member_tbl_11;
+
+--문제) 고객테이블로부터 이름에 ‘님’자를 붙여 NAME이라는 컬럼으로이 조회되도록 하시오
+select m_name || '님' as name
+from member_tbl_11;
+

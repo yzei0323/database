@@ -267,3 +267,48 @@ desc acorntbl2;
 
 insert into acorntbl2 values('test2', '0000', '김솔', 8000);
 commit; 
+
+
+
+--단일행함수
+--문자함수
+
+--initcap() 함수 : 첫글자 대문자, 나머지 소문자로 변경
+select ename , initcap(ename)
+from emp;
+
+--lower() 함수 : 소문자
+select ename, lower(ename)
+from emp;
+
+--upper() 함수 : 대문자
+select ename, ename
+from emp;
+
+--length : 길이
+select ename, length(ename)
+from emp;
+
+select name, length(name)
+from acorntbl2;
+
+
+--substr() : 문자의 일부를 반환함
+--인덱스는 1부터 시작함
+--문자열, 시작인덱스, 가져올 개수
+select job, substr(job, 1, 3)
+from emp;
+
+select job, substr(job, 3, 2)
+from emp;
+
+
+--instr() : 문자열에서 특정문자의 위치를 반환함
+select instr('A-B-C-D', '-') from dual; 
+select instr('02)978-1234', ')') from dual;   --3
+select instr('031)978-1234', ')') from dual;  --4
+
+--ltrim() : 공백제거(왼쪽), rtrim(오른쪽), trim(양쪽)
+select name, ltrim(name) 
+from acorntbl2;
+
