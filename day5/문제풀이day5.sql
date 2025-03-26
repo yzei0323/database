@@ -128,10 +128,15 @@ ON A.DEPTNO1 = D.DEPTNO;
 --인라인 뷰를 사용 학년 컬럼으로 오름차순 정렬 출력
 SELECT * FROM STUDENT;
 
+--그냥 전체 평균키는~???
+SELECT AVG(HEIGHT)
+FROM STUDENT;
+
 --학년별 평균키
 SELECT GRADE, AVG(HEIGHT)
 FROM STUDENT
-GROUP BY GRADE;
+GROUP BY GRADE
+ORDER BY DESC;
 
 --각 학년 평균보다 큰 학생
 SELECT GRADE, NAME, HEIGHT
@@ -154,6 +159,13 @@ JOIN (SELECT GRADE, AVG(HEIGHT) AVG_HEIGHT FROM STUDENT GROUP BY GRADE) A
 ON S.GRADE = A.GRADE
 WHERE HEIGHT > A.AVG_HEIGHT
 ORDER BY GRADE;
+
+--동우님이 한거
+SELECT s.grade, s.name, s.HEIGHT, a.AVG_HEIGHT
+FROM (SELECT grade, avg(height)   avg_height FROM student GROUP BY grade) A  
+JOIN student  s
+ON  a.grade =s.grade  AND     s.height  >= a.avg_height
+ORDER BY 1;
 
 
 
@@ -183,6 +195,7 @@ WHERE WEIGHT >
     WHERE DEPTNO1 = '201');
 
 
+
 --p434
 --연습문제1. EMP2 테이블에서 'Section head' 직급의 최소 연봉자보다 연봉이 높은 사람의 이름과 직급, 연봉 출력
 --(단, 연봉 출력 형식은 천 단위 구분 기호와 999,999 $표시를 하세요)
@@ -200,8 +213,119 @@ WHERE PAY > (SELECT MIN(PAY) FROM EMP2 WHERE POSITION='Section head')
 ORDER BY PAY DESC;
 
 --근데 단위는 어케해 뭐야 이거
+SELECT TO_CHAR(PAY, '$999,999')
+FROM EMP2; 
+-- 999,999로 해서 그런거였음 결과값보다 작게해서..... 하 999,999,999로 해결
 SELECT TO_CHAR(PAY, '$999,999,999')
 FROM EMP2; 
--- 999,999로 해서 그런거였음 값보다 작게해서..... 하 999,999,999로 해결
 
 
+
+
+-------- 발표
+-- 420p 4번문제 동우
+SELECT * FROM student ORDER BY grade;
+
+-- 조회
+SELECT grade, name, height
+FROM student;
+
+-- 학년별 키 평균
+SELECT grade, avg(height)
+FROM student
+GROUP BY grade;
+
+-- 평균 키보다 큰 사람 조회
+SELECT grade, name, height
+FROM STUDENT
+WHERE height > (SELECT avg(height)
+FROM student)
+ORDER BY grade;
+
+-- 학년별 평균키 보다 큰 사람 조회
+SELECT grade, avg(height)
+FROM student
+GROUP BY grade;
+
+SELECT s.grade, s.name, s.HEIGHT, a.AVG_HEIGHT
+FROM (SELECT grade, avg(height)   avg_height
+FROM student
+GROUP BY grade) A  
+JOIN student  s
+ON  a.grade =s.grade  AND     s.height  >= a.avg_height
+ORDER BY 1;
+
+
+--430pg 연습문제3 윤석
+SELECT * FROM STUDENT;
+
+SELECT NAME, DEPTNO1, WEIGHT
+FROM STUDENT;
+
+-- 필요 정보
+SELECT NAME, DEPTNO1, WEIGHT
+FROM STUDENT
+WHERE DEPTNO1 = '201';
+
+-- 전공201의 평균 몸무게(WHERE 조건)
+SELECT DEPTNO1, AVG(WEIGHT)
+FROM STUDENT
+WHERE DEPTNO1 = '201'
+GROUP BY DEPTNO1;
+
+SELECT AVG(WEIGHT)
+FROM STUDENT
+WHERE DEPTNO1 = '201';
+
+-- 결과 출력
+SELECT NAME, WEIGHT
+FROM STUDENT
+WHERE WEIGHT > (SELECT AVG(WEIGHT) FROM STUDENT WHERE DEPTNO1 = '201');
+
+
+--434p 1번 형택
+
+select * from emp2;
+
+select name, pay,position
+from emp2
+where position = 'Section head';
+
+select * from emp2;
+
+select   pay 
+from emp2
+where position = 'Section head';
+
+select min(pay)
+from emp2
+where position = 'Section head';
+
+select name, position, pay
+from emp2
+where pay = (select min(pay)
+             from emp2
+             where position = 'Section head');
+                   
+select name, position, min(pay)
+from emp2
+where position ='Section head'
+group by name, position;
+
+
+select name, position, to_char(pay, '$999,999,999')as SALARY 
+from emp2
+where pay > (select min(pay)
+            from emp2
+            where position = 'Section head')
+order by pay desc;
+                                 
+
+select name, position, to_char(pay, '$999,999,999') AS SALARY
+from emp2
+where pay >ANY   (select   pay 
+from emp2
+where position = 'Section head'
+                  )
+order by pay desc;
+------------------------------
