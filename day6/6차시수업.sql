@@ -316,6 +316,7 @@ WHERE G.GNAME='Notebook'
 ORDER BY C.POINT DESC;
 
 
+--문제풀이day6에 옮겨놓을게염 ~~ 배드민턴 문제두
 
 
 
