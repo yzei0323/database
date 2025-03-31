@@ -1,0 +1,142 @@
+--LIB_MEMBER
+--    M_ID VARCHAR2(4) PRIMARY KEY,
+--    M_NAME VARCHAR2(10) NOT NULL,
+--    M_TEL VARCHAR2(13) NOT NULL CHECK(M_TEL like '010-____-____'),
+--    M_BIRTHDAY DATE NOT NULL,
+--    M_RENTAL_LEFT VARCHAR2(1) DEFAULT '3' NOT NULL
+
+--LIB_BOOK_INFO(
+--    B_ID VARCHAR2(10) PRIMARY KEY,
+--    B_TITLE VARCHAR2(60) NOT NULL,
+--    B_AUTHOR VARCHAR2(50) DEFAULT '무명' NOT NULL,
+--    B_PUBLISHER VARCHAR2(60),
+--    B_RENTAL_STATUS VARCHAR2(1) DEFAULT 'Y' NOT NULL
+
+--LIB_BOOK_RENTAL(
+--    RENTAL_ID VARCHAR2(4) PRIMARY KEY NOT NULL,
+--    MEMBER_ID VARCHAR2(4) NOT NULL,
+--    BOOK_ID VARCHAR2(10) NOT NULL,
+--    RENTAL_DATE DATE, 
+--    RETURN_DATE DATE,
+--    RETURN_STATUS VARCHAR(1) DEFAULT 'N',
+--    FOREIGN KEY (MEMBER_ID) REFERENCES LIB_MEMBER(M_ID),
+--    FOREIGN KEY (BOOK_ID) REFERENCES LIB_BOOK_INFO(B_ID)
+
+--LIB_BOOK_GENRE(
+--    G_ID VARCHAR2(5) NOT NULL,
+--    G_NAME VARCHAR2(30) NOT NULL,
+--    G_NAME_E VARCHAR2(30) NOT NULL
+
+--LIB_BOOK_LIBRARY(
+--    L_ID VARCHAR2(5) NOT NULL,
+--    L_NAME VARCHAR2(30) NOT NULL
+
+--LIB_BOOK_LANGUAGE(
+--    LAN_ID VARCHAR2(5) NOT NULL,
+--    LAN_NAME VARCHAR2(30) NOT NULL
+
+select * from LIB_MEMBER;
+select * from LIB_BOOK_INFO;
+select * from LIB_BOOK_RENTAL;
+select * from LIB_BOOK_GENRE;
+select * from LIB_BOOK_LIBRARY;
+select * from LIB_BOOK_LANGUAGE;
+
+
+-- 렌탈 책 코드로 보유도서관, 제목, 책 장르, 언어 출력하기
+select r.book_id, i.b_title as 제목, i.b_author as "작가"
+from lib_book_rental R
+join lib_book_info I
+on R.book_id = i.b_id;
+
+select * from LIB_BOOK_GENRE;
+select * from LIB_BOOK_LANGUAGE;
+select * from LIB_BOOK_INFO;
+-- 대여 책의 정보 가져오기
+select R.book_id, L.LAN_NAME 
+from LIB_BOOK_LANGUAGE L
+join LIB_BOOK_RENTAL R
+on L.LAN_ID = substr(R.book_id,5,1)
+join LIB_BOOK_GeNRE G
+ON G.G_ID = substr(R.book_id,3,2)
+join LIB_BOOK_LIBRARY LI
+ON LI.L_ID = substr(R.book_id,1,2)
+join LIB_BOOK_INFO I
+ON I.b_id = R.book_id;
+
+-- 책 코드 값을 가져와 해당 코드에 맞는 장르로 출력하기
+
+
+-- 서적 대여 시 LIB_MEMBER 속 대여 M_RENTAL_LEFT 수량 대여 수 만큼 감소, 반납시 대여 수 만큼 증가
+
+
+-- 서적 코드 중 SUBSTR 사용하여 값을 가져오고 해당 값으로 책 제목, 책 보유 도서관,
+-- 장르, 언어, 출판일, 출력
+select I.b_id as "도서코드", I.b_title as "도서 제목"
+     , I.b_author as "작가", G.g_name as "장르", 
+       L.LAN_NAME as "언어",LI.L_name as "도서관"
+from LIB_BOOK_LANGUAGE L
+join LIB_BOOK_LIBRARY LI
+ON LI.L_ID = substr(I.b_id,1,2)  -- 보유 도서관 출력
+join LIB_BOOK_GENRE G
+ON G.G_ID = substr(I.b_id,3,2)   -- 도서 장르 출력
+join LIB_BOOK_INFO I
+on L.LAN_ID = substr(I.b_id,5,1) -- 도서 언어 추력
+join LIB_BOOK_RENTAL R  
+ON R.book_id = I.b_id;           -- 대출중인 도서만 출력
+
+
+SELECT * FROM LIB_BOOK_INFO;
+SELECT * FROM LIB_BOOK_RENTAL;
+-- 서적 대여시 BOOK_INFO 테이블의 대여가능여부 값 수정
+--UPDATE (
+--SELECT I.B_RENTAL_STATUS, R.RETURN_STATUS
+--FROM LIB_BOOK_INFO I
+--JOIN LIB_BOOK_RENTAL R
+--ON I.B_ID = R.BOOK_ID
+--WHERE I.B_ID = R.BOOK_ID
+--)   SET B_RENTAL_STATUS = 'N';
+
+UPDATE LIB_BOOK_INFO I
+SET I.B_RENTAL_STATUS = 'N'
+WHERE I.B_RENTAL_STATUS ='Y'
+    AND EXISTS(
+        SELECT 1
+        FROM LIB_BOOK_RENTAL R
+        WHERE I.B_ID = R.BOOK_ID
+        AND R.RETURN_STATUS = 'N'
+        );
+                
+    
+
+-- 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
