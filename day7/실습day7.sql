@@ -59,3 +59,25 @@ SELECT * FROM BOOKS;
 SELECT * FROM BOOK_RENTAL;
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FS
+
+
