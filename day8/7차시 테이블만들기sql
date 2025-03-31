@@ -1,0 +1,84 @@
+-- 7차시 실습 테이블 만들기
+-- 공항 시스템
+-- 고객 정보 테이블 / 출입국 정보 테이블 / 관광지 코드 테이블 / 기내식 선택 테이블
+-- 고객 정보 테이블 생성
+DROP TABLE AIR_CUSTOMER;
+DROP TABLE AIR_COUNTRY;
+DROP table airport_TRAVEL;
+
+
+CREATE TABLE AIR_CUSTOMER(
+    NO NUMBER(3) PRIMARY KEY,
+    NAME VARCHAR2(10) NOT NULL,
+    GENDER VARCHAR2(6) NOT NULL,
+    JUMIN VARCHAR2(14) NOT NULL,
+    PHONE VARCHAR2(13) NOT NULL
+);
+
+TRUNCATE TABLE AIR_CUSTOMER;
+INSERT INTO AIR_CUSTOMER VALUES ( 01, '김보성', '남성','001206-0000000','010-7766-5927');
+INSERT INTO AIR_CUSTOMER VALUES ( 02, '순당무', '여성','020304-0000000','010-1234-1234');
+INSERT INTO AIR_CUSTOMER VALUES ( 03, '김갑순', '여성','920112-0000000','010-4213-7598');
+INSERT INTO AIR_CUSTOMER VALUES ( 04, '나강한', '남성','000821-0000000','010-2034-2901');
+
+select * from AIR_CUSTOMER;
+
+-- 관광지 코드 테이블
+CREATE TABLE AIR_COUNTRY(
+    C_NO NUMBER (2) PRIMARY KEY,
+    C_COUNTRY VARCHAR2(20) NOT NULL,
+    C_COUNTRY_MIN VARCHAR2(3) NOT NULL,
+    CONSTRAINT unique_country_name UNIQUE (C_COUNTRY)
+    -- CONSTRAINT : GPT 도움을 받음.
+    -- AIR_COUNTRY에 있는 나라들로만 출발지 도착지를 출력하고 싶어서
+    -- FOREIGN KEY를 사용했지만 AIRPORT_TRAVEL 테이블 추가 과정에서 
+    -- ORA-02270 오류가 떠 이유를 찾아보니 참조되는 테이블에서 참조하는 컬럼이
+    -- UNIQUE 제약을 만족하지 않거나 PRIMARY KEY가 설정되지 않았기 때문이라고 알려줌.
+    -- 그렇기에 해당 기능을 살리고 AIRPORT_TRAVEL 테이블을 추가시키려면
+    -- AIR_COUNTRY의 C_COUNTRY에 PRIMARY KEY를 추가하거나 UNIQUE 제약을 추가해야 하므로
+    -- C_COUNTRY에 UNIQUE 제약을 추가했음.
+);
+
+INSERT INTO AIR_COUNTRY VALUES (01, 'South Korea', 'KR');
+INSERT INTO AIR_COUNTRY VALUES (02, 'Japan', 'JP');
+INSERT INTO AIR_COUNTRY VALUES (03, 'New York', 'US');
+INSERT INTO AIR_COUNTRY VALUES (04, 'Paris', 'FR');
+INSERT INTO AIR_COUNTRY VALUES (05, 'Rome', 'IT');
+INSERT INTO AIR_COUNTRY VALUES (06, 'Bangkok', 'TH');
+INSERT INTO AIR_COUNTRY VALUES (07, 'Sydney', 'AU');
+
+select * from AIR_COUNTRY;
+
+-- 출입국 정보 테이블
+-- 회원번호 / 입국(1),출국(2) / 출발지 / 도착지 
+CREATE TABLE AIRPORT_TRAVEL(
+    T_NO NUMBER(4) PRIMARY KEY,
+    CUSTOMER_NO NUMBER (3) NOT NULL,
+    ENTRY_EXIT VARCHAR(6) NOT NULL,
+    DEPART VARCHAR(20) NOT NULL, -- 출국지
+    ARRIVE VARCHAR(20) NOT NULL, -- 입국지
+    FLIGHT_DATE DATE NOT NULL,
+    SEAT_NO VARCHAR(5) NOT NULL,
+    FOREIGN KEY (CUSTOMER_NO) REFERENCES AIR_CUSTOMER(NO),
+    FOREIGN KEY (DEPART) REFERENCES AIR_COUNTRY (C_COUNTRY),
+    FOREIGN KEY (ARRIVE) REFERENCES AIR_COUNTRY (C_COUNTRY)
+);
+
+INSERT INTO AIRPORT_TRAVEL VALUES ( 1001 ,01, '입국', 'South Korea', 'Japan', SYSDATE, 'A01');
+INSERT INTO AIRPORT_TRAVEL VALUES ( 1002, 02, '출국', 'New York', 'South Korea', '2025-03-29', 'B01');
+
+select * from airport_TRAVEL;
+
+--
+SELECT * FROM AIR_CUSTOMER;
+SELECT * FROM AIR_COUNTRY;
+SELECT * FROM AIRPORT_TRAVEL;
+
+select t.t_no "여행번호" ,c.no "회원번호", c.name, 
+       t.depart "출발지", t.arrive "도착지",
+       t.flight_date "출발일", t.seat_no "좌석번호"
+from air_customer C
+join airport_travel T
+on C.no = T.customer_no;
+
+
