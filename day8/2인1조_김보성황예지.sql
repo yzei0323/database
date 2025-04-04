@@ -78,7 +78,7 @@ drop table lib_member;
 
 
 -- 각 테이블 출력
-          -- 회원 정보
+select * from LIB_MEMBER;           -- 회원 정보
 select * from LIB_BOOK_INFO;        -- 도서 정보
 select * from LIB_BOOK_RENTAL;      -- 대출 정보
 -- 아래 테이블의 ID값을 기반으로 책 정보 속 코드(B_ID) 구성
