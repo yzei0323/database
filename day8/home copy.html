@@ -108,12 +108,40 @@
       transform: translate(35px,10px);
     }
 
+    .member{
+      /*border: 1px solid black;*/
+      text-align: center;
+      width: 300px;
+      font-size: 20px;
+      z-index: 5;
+      position: absolute;
+      left: 50%;
+      transform: translate(-50%,200px);
+    }
+
+    .member ul{
+      list-style: none;
+      display: flex;
+      margin: 0;
+      padding: 0;
+      justify-content: center;
+
+    }
+    .member li{
+      margin: 0 20px;
+    }
+    .member a{
+      text-decoration: none;
+      color: black;
+    }
+
 
   </style>
 
 </head>
 <body>
   <div class="wrap">
+
     <div class="content">
       <div class="title">
         <h1>에이콘 도서관</h1>
@@ -126,6 +154,14 @@
         </div>
       </div>
     </div>
+
+    <div class="member">
+      <ul>
+        <li><a href>회원조회</a></li>
+        |
+        <li><a href>회원등록</a></li>
+    </div>
+
   </div>
 </body>
 </html>

@@ -3,8 +3,9 @@
 
 -- 회원 정보 테이블
 CREATE TABLE LIB_MEMBER(
-    M_ID VARCHAR2(4) PRIMARY KEY,
-    M_NAME VARCHAR2(10) NOT NULL,
+    M_CODE VARCHAR2(4) PRIMARY KEY,
+    M_NAME VARCHAR2(10) UNIQUE NOT NULL,
+    M_ID VARCHAR2(15 CHAR) UNIQUE NOT NULL,
     M_TEL VARCHAR2(13) NOT NULL CHECK(M_TEL like '010-____-____'),
     M_BIRTHDAY DATE NOT NULL,
     M_RENTAL_LEFT VARCHAR2(2) DEFAULT '3' NOT NULL
@@ -17,6 +18,7 @@ CREATE TABLE LIB_BOOK_INFO (
     B_AUTHOR VARCHAR2(50) DEFAULT '무명' NOT NULL,
     B_PUBLISHER VARCHAR2(50) NOT NULL,
     B_RENTAL_STATUS VARCHAR2(1) DEFAULT 'Y' NOT NULL,
+    B_IMG VARCHAR(500) NOT NULL,
     CONSTRAINT CK_B_ID CHECK (REGEXP_LIKE(B_ID, '^[A-Z]{2}[A-Z]{2}[A-Z]{1}[0-9]{4}[A-Z]{1}$'))
 );
 
@@ -28,7 +30,7 @@ CREATE TABLE LIB_BOOK_RENTAL(
     RENTAL_DATE DATE NOT NULL, 
     RETURN_DATE DATE NOT NULL,
     RETURN_STATUS VARCHAR2(1) DEFAULT 'N',
-    FOREIGN KEY (MEMBER_ID) REFERENCES LIB_MEMBER(M_ID),
+    FOREIGN KEY (MEMBER_ID) REFERENCES LIB_MEMBER(M_CODE),
     FOREIGN KEY (BOOK_ID) REFERENCES LIB_BOOK_INFO(B_ID)
 );
 
@@ -67,10 +69,16 @@ INSERT INTO LIB_BOOK_LANGUAGE VALUES('E','영어');
 INSERT INTO LIB_BOOK_LANGUAGE VALUES('J','일본어');
 
 
+drop table lib_book_rental;
+drop table lib_book_info;
+drop table lib_member;
+
+
+
 
 
 -- 각 테이블 출력
-select * from LIB_MEMBER;           -- 회원 정보
+          -- 회원 정보
 select * from LIB_BOOK_INFO;        -- 도서 정보
 select * from LIB_BOOK_RENTAL;      -- 대출 정보
 -- 아래 테이블의 ID값을 기반으로 책 정보 속 코드(B_ID) 구성
@@ -158,7 +166,7 @@ select b_id , b_title , b_rental_status 대출가능 from lib_book_info;  --대�
 
 
 --회원테이블의 대출가능 수량 업데이트 전 확인
-select m_id, m_name, m_rental_left 대출가능권수 from lib_member;
+select m_code, m_name, m_rental_left 대출가능권수 from lib_member;
 
 -- 서적 대출시 회원 정보(LIB_MEMBER)속 대출가능 수량(M_RENTAL_LEFT)만큼 감소, 반납 시 반납 수 만큼 증가
 UPDATE LIB_MEMBER M
@@ -167,172 +175,174 @@ SET M.M_RENTAL_LEFT = LEAST(    -- LEAST = 여러 값 중 가장 작은 값을 �
     M.M_RENTAL_LEFT 
     - (SELECT COUNT(*) 
        FROM LIB_BOOK_RENTAL R 
-       WHERE R.MEMBER_ID = M.M_ID AND R.RETURN_STATUS = 'N')    -- 대출 테이블의 ID와 회원정보 테이블의 ID가 동일하고, 반납정보가 'N'인 경우 M_RENTAL_LEFT에서 - 처리
+       WHERE R.MEMBER_ID = M.M_CODE AND R.RETURN_STATUS = 'N')    -- 대출 테이블의 ID와 회원정보 테이블의 ID가 동일하고, 반납정보가 'N'인 경우 M_RENTAL_LEFT에서 - 처리
     + (SELECT COUNT(*)
        FROM LIB_BOOK_RENTAL R
-       WHERE R.MEMBER_ID = M.M_ID AND R.RETURN_STATUS = 'Y')    -- 대출 테이블의 ID와 회원정보 테이블의 ID가 동일하고, 반납정보가 'N'인 경우 M_RENTAL_LEFT에서  처리
+       WHERE R.MEMBER_ID = M.M_CODE AND R.RETURN_STATUS = 'Y')    -- 대출 테이블의 ID와 회원정보 테이블의 ID가 동일하고, 반납정보가 'N'인 경우 M_RENTAL_LEFT에서  처리
 )
 WHERE EXISTS (
     SELECT 1
     FROM LIB_BOOK_RENTAL R
-    WHERE R.MEMBER_ID = M.M_ID AND (R.RETURN_STATUS = 'N' OR R.RETURN_STATUS = 'Y')
+    WHERE R.MEMBER_ID = M.M_CODE AND (R.RETURN_STATUS = 'N' OR R.RETURN_STATUS = 'Y')
     -- 대출정보의 회원ID와 회원정보에서의 회원ID가 동일하고 대출정보의 반납정보가 'N'이거나 'Y'인 레코드를 찾기.
     -- 레코드 존재시 회원정보 행 업데이트, 없을 시 회원정보 행 업데이트 방지.
 );
 
 --대출가능 수량 업데이트 후
-select m_id, m_name, m_rental_left 대출가능 from lib_member;
+select m_code, m_name, m_rental_left 대출가능 from lib_member;
 
 
 
 
 
 --회원정보
-INSERT INTO LIB_MEMBER (M_ID, M_NAME, M_TEL, M_BIRTHDAY) VALUES ('M001', '김보성', '010-5776-1927', '2000-12-06');
-INSERT INTO LIB_MEMBER (M_ID, M_NAME, M_TEL, M_BIRTHDAY) VALUES ('M002', '황예지', '010-3827-5448', '2002-01-06');
-INSERT INTO LIB_MEMBER (M_ID, M_NAME, M_TEL, M_BIRTHDAY) VALUES ('M003', '김민준', '010-1234-5678', '1995-08-22');
-INSERT INTO LIB_MEMBER (M_ID, M_NAME, M_TEL, M_BIRTHDAY) VALUES ('M004', '박민서', '010-2345-6789', '1998-03-15');
-INSERT INTO LIB_MEMBER (M_ID, M_NAME, M_TEL, M_BIRTHDAY) VALUES ('M005', '최수현', '010-3456-7890', '2002-11-05');
-INSERT INTO LIB_MEMBER (M_ID, M_NAME, M_TEL, M_BIRTHDAY) VALUES ('M006', '이하은', '010-4567-8901', '2005-07-19');
-INSERT INTO LIB_MEMBER (M_ID, M_NAME, M_TEL, M_BIRTHDAY) VALUES ('M007', '정우진', '010-5678-9012', '1990-12-25');
-INSERT INTO LIB_MEMBER (M_ID, M_NAME, M_TEL, M_BIRTHDAY) VALUES ('M008', '한지우', '010-6789-0123', '2008-09-30');
+INSERT INTO LIB_MEMBER (M_CODE, M_NAME, M_ID, M_TEL, M_BIRTHDAY) VALUES ('M001', '김보성','bb123' , '010-5776-1927', '2000-12-06');
+INSERT INTO LIB_MEMBER (M_CODE, M_NAME, M_ID, M_TEL, M_BIRTHDAY) VALUES ('M002', '황예지','yy123' , '010-3827-5448', '2002-01-06');
+INSERT INTO LIB_MEMBER (M_CODE, M_NAME, M_ID, M_TEL, M_BIRTHDAY) VALUES ('M003', '김민준','mm123' , '010-1234-5678', '1995-08-22');
+INSERT INTO LIB_MEMBER (M_CODE, M_NAME, M_ID, M_TEL, M_BIRTHDAY) VALUES ('M004', '박민서','pp123' , '010-2345-6789', '1998-03-15');
+INSERT INTO LIB_MEMBER (M_CODE, M_NAME, M_ID, M_TEL, M_BIRTHDAY) VALUES ('M005', '최수현','ss123' , '010-3456-7890', '2002-11-05');
+INSERT INTO LIB_MEMBER (M_CODE, M_NAME, M_ID, M_TEL, M_BIRTHDAY) VALUES ('M006', '이하은','hh123' , '010-4567-8901', '2005-07-19');
+INSERT INTO LIB_MEMBER (M_CODE, M_NAME, M_ID, M_TEL, M_BIRTHDAY) VALUES ('M007', '정우진','uu123' , '010-5678-9012', '1990-12-25');
+INSERT INTO LIB_MEMBER (M_CODE, M_NAME, M_ID, M_TEL, M_BIRTHDAY) VALUES ('M008', '한지우','jj123' , '010-6789-0123', '2008-09-30');
+// 아이디 중복 제약조건 테스트 INSERT INTO LIB_MEMBER (M_CODE, M_NAME, M_ID, M_TEL, M_BIRTHDAY) VALUES ('M009', '테스트','jj123' , '010-6789-0123', '2008-09-30');
 
 
 --도서정보
 --한국소설
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('GYFIK2014A','소년이 온다','한강','창비');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('HJFIK2015A','스토너','존 윌리엄스','알에이치코리아');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('GYFIK2022A','급류','정대건','민음사');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('HJFIK2021A','작별하지 않는다','한강','문학동네');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYFIK2014A','소년이 온다','한강','창비' , 'https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9788936434120.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJFIK2015A','스토너','존 윌리엄스','알에이치코리아','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9788925554990.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYFIK2022A','급류','정대건','민음사','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9788937473401.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJFIK2021A','작별하지 않는다','한강','문학동네','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9788954682152.jpg');
 --한국 시/에세이
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('HJPEK2020A','꽃을 보듯 너를 본다','나태주','지혜');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('GYPEK2013A','서랍에 저녁을 넣어 두었다','한강','문학과지성사');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('HJPEK2020B','소년과 두더지와 여우의 말','찰리 맥커시','상상의 힘');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('GYPEK2022A','잘했고 잘하고 있고 잘 될 것이다','정영욱','부크럼');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJPEK2020A','꽃을 보듯 너를 본다','나태주','지혜','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9791157280292.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYPEK2013A','서랍에 저녁을 넣어 두었다','한강','문학과지성사','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9788932024639.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJPEK2020B','소년과 두더지와 여우의 말','찰리 맥커시','상상의 힘','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9788997381678.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYPEK2022A','잘했고 잘하고 있고 잘 될 것이다','정영욱','부크럼','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9791162143605.jpg');
 --한국 취미/여행
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('GYHTK2017A','매일매일 두뇌 트레이닝 스도쿠 600','손호성','봄봄스쿨');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('HJHTK2020A','데코폴리 스티커 컬러링 북: 강아지','.DNA디자인스튜디오','DNA디자인');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('HJHTK2025A','디스 이즈 파리(2025~2026)','김민준 외','테라출판사');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('HJHTK2025B','디스 이즈 스페인(2025~2026)','천혜진','테라출판사');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYHTK2017A','매일매일 두뇌 트레이닝 스도쿠 600','손호성','봄봄스쿨','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9791158951139.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJHTK2020A','데코폴리 스티커 컬러링 북: 강아지','.DNA디자인스튜디오','DNA디자인','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9791197169809.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJHTK2025A','디스 이즈 파리(2025~2026)','김민준 외','테라출판사','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9791192767253.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJHTK2025B','디스 이즈 스페인(2025~2026)','천혜진','테라출판사','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9791192767291.jpg');
 --과학/기술
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('GYSTK2021A','물고기는 존재하지 않는다','룰루 밀러','곰출판');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('GYSTK2010A','코스모스','칼 세이건','사이언스북스');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('HJSTK2023A','이기적 유전자','리처드 도킨스','을유문화사');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('GYSTK2021B','다정한 것이 살아남는다','브라이언 헤어 외','디플롯');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYSTK2021A','물고기는 존재하지 않는다','룰루 밀러','곰출판','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9791189327156.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYSTK2010A','코스모스','칼 세이건','사이언스북스','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9788983711892.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJSTK2023A','이기적 유전자','리처드 도킨스','을유문화사','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9788932473901.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYSTK2021B','다정한 것이 살아남는다','브라이언 헤어 외','디플롯','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9791197413025.jpg');
 --인문/사회
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('HJSHK2023A','사피엔스','유발 하라리','김영사');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('GYSHK2019A','사랑의 기술','에리히 프롬','문예출판사');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('HJSHK2024A','어떻게 민주주의는 무너지는가','스티븐 레비츠키 외','어크로스');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('GYSHK2016A','왜 세계의 절반은 굶주리는가?','장 지글러','갈라파고스');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJSHK2023A','사피엔스','유발 하라리','김영사','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9788934943235.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYSHK2019A','사랑의 기술','에리히 프롬','문예출판사','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9788931011623.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJSHK2024A','어떻게 민주주의는 무너지는가','스티븐 레비츠키 외','어크로스','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9791160560589.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYSHK2016A','왜 세계의 절반은 굶주리는가?','장 지글러','갈라파고스','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9791187038030.jpg');
 --경제/경영
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('HJEBK2023A','돈의 심리학','모건 하우절','인플루엔셜');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('GYEBK2013A','자본주의','EBS 자본주의 제작팀','가나출판사');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('GYEBK2020A','돈의 속성','김승호','스노우폭스북스');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('HJEBK2018A','생각에 관한 생각','대니얼 카너먼','김영사');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJEBK2023A','돈의 심리학','모건 하우절','인플루엔셜','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9791191056372.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYEBK2013A','자본주의','EBS 자본주의 제작팀','가나출판사','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9788957365793.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYEBK2020A','돈의 속성','김승호','스노우폭스북스','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9791188331796.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJEBK2018A','생각에 관한 생각','대니얼 카너먼','김영사','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9788934981213.jpg');
 --수험서
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('HJTEK2025A','2025 객관식세법 2','원재훈 외','나우퍼블리셔');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('GYTEK2025B','2025 세법플러스','원재훈 외','나우퍼블리셔');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('GYTEK2025C','2025 핵심정리 사회보험법','이주현','새흐름');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('GYTEK2024A','2025 하루에 끝장내기 재정학','정병열','세경북스');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJTEK2025A','2025 객관식세법 2','원재훈 외','나우퍼블리셔','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9791171020935.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYTEK2025B','2025 세법플러스','원재훈 외','나우퍼블리셔','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9791171021017.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYTEK2025C','2025 핵심정리 사회보험법','이주현','새흐름','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9791162936108.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYTEK2024A','2025 하루에 끝장내기 재정학','정병열','세경북스','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9791159734311.jpg');
 --예술
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('HJATK2009A','스즈키 바이올린 교본 1','세광음악출판사 편집부','세광음악출판사');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('GYATK2022A','수인×이종족 캐릭터 디자인','스미요시 료','므큐');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('GYATK2016A','룰루랄라 신나는 우쿨렐레 1','정광교 외','디자인기타');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('HJATK2006A','나의 첫 바이올린 연주곡집','황운순','현대음악출판사');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJATK2009A','스즈키 바이올린 교본 1','세광음악출판사 편집부','세광음악출판사','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9788903411116.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYATK2022A','수인×이종족 캐릭터 디자인','스미요시 료','므큐','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9791168014619.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYATK2016A','룰루랄라 신나는 우쿨렐레 1','정광교 외','디자인기타','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9788992300674.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJATK2006A','나의 첫 바이올린 연주곡집','황운순','현대음악출판사','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9788957662106.jpg');
 --만화
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('GYCMK2022A','오란고교 호스트부 1','Bisco Hatori','학산문화사');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('HJCMK2022B', '나츠메 우인장25', 'Yuki Midorikawa', '대원씨아이');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('HJCMK2022C', '진격의 거인34', 'Hajime Isayama', '위즈덤하우스');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('HJCMK2022D', '너의 이름은', 'Makoto Shinkai', '대원씨아이');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYCMK2022A','오란고교 호스트부 1','Bisco Hatori','학산문화사','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9791169279673.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJCMK2023B', '나츠메 우인장 25', 'Yuki Midorikawa', '대원씨아이','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9791141112813.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJCMK2021C', '진격의 거인 34', 'Hajime Isayama', '위즈덤하우스','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9791168768161.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJCMK2025D', '단다단 16', 'Yukinobu Tatsu', '대원씨아이','https://contents.kyobobook.co.kr/sih/fit-in/300x0/pdt/9791142310621.jpg');
 --잡지
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('GYMZK2022A','보스토크(Vostok). 33','보스토크 프레스 편집부','보스토크프레스');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('HJMZK2018A','매거진 B No 70: Porshe(한글판)','매거진 B 편집부','비미디어컴퍼니');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('HJMZK2017A','매거진 B No 53: 무인양품(MUJI)(한글판)','매거진 B 편집부','비미디어컴퍼니');
-INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER)
-VALUES ('GYMZK2015A','매거진 B No 37: Tsutaya(한글판)','매거진 B 편집부','비미디어컴퍼니');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYMZK2022A','보스토크(Vostok). 33','보스토크 프레스 편집부','보스토크프레스','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9791170370444.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJMZK2018A','매거진 B No 70: Porshe(한글판)','매거진 B 편집부','비미디어컴퍼니','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9791160360479.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJMZK2017A','매거진 B No 53: 무인양품(MUJI)(한글판)','매거진 B 편집부','비미디어컴퍼니','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9791160360097.jpg');
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYMZK2015A','매거진 B No 37: Tsutaya(한글판)','매거진 B 편집부','비미디어컴퍼니','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9788998415754.jpg');
 -- 영어 서적 (소설)
-INSERT INTO LIB_BOOK_INFO (B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER) 
-VALUES ('FIE2006A', 'The Road', 'Cormac McCarthy', 'Vintage Books'); -- 소설
-INSERT INTO LIB_BOOK_INFO (B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER) 
-VALUES ('GYFIE2006B', 'The Alchemist', 'Paulo Coelho', 'HarperOne'); -- 소설
-INSERT INTO LIB_BOOK_INFO (B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER) 
-VALUES ('GYFIE2008C', 'The Kite Runner', 'Khaled Hosseini', 'Riverhead Books'); -- 소설
-INSERT INTO LIB_BOOK_INFO (B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER) 
-VALUES ('GYFIE2010D', 'The Girl with the Dragon Tattoo', 'Stieg Larsson', 'Norstedts Förlag'); -- 소설
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYFIE2006A', 'The Road', 'Cormac McCarthy', 'Vintage Books','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9788954605908.jpg'); -- 소설
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYFIE2006B', 'The Alchemist', 'Paulo Coelho', 'HarperOne','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9780062355300.jpg'); -- 소설
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYFIE2008C', 'The Kite Runner', 'Khaled Hosseini', 'Riverhead Books','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9781594632204.jpg'); -- 소설
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYFIE2010D', 'The Girl with the Dragon Tattoo', 'Stieg Larsson', 'Norstedts Förlag','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/4801118132937.jpg'); -- 소설
 -- 영어 서적 (시/에세이)
-INSERT INTO LIB_BOOK_INFO (B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER) 
-VALUES ('GYPEE2011A', 'The Help', 'Kathryn Stockett', 'Penguin Group'); -- 시/에세이
-INSERT INTO LIB_BOOK_INFO (B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER) 
-VALUES ('GYPEE2014B', 'Gone Girl', 'Gillian Flynn', 'Crown Publishing Group'); -- 시/에세이
-INSERT INTO LIB_BOOK_INFO (B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER) 
-VALUES ('GYPEE2017C', 'The Underground Railroad', 'Colson Whitehead', 'Doubleday'); -- 시/에세이
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYPEE2011A', 'The Help', 'Kathryn Stockett', 'Penguin Group','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/4800141930015.jpg'); -- 시/에세이
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYPEE2014B', 'Gone Girl', 'Gillian Flynn', 'Crown Publishing Group','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9780753827666.jpg'); -- 시/에세이
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYPEE2017C', 'The Underground Railroad', 'Colson Whitehead', 'Doubleday','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9780345804327.jpg'); -- 시/에세이
 -- 영어 서적 (과학/기술)
-INSERT INTO LIB_BOOK_INFO (B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER) 
-VALUES ('GYSTE1995A', 'The Selfish Gene', 'Richard Dawkins', 'Oxford University Press'); -- 과학/기술
-INSERT INTO LIB_BOOK_INFO (B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER) 
-VALUES ('GYSTE2000B', 'A Brief History of Time', 'Stephen Hawking', 'Bantam Books'); -- 과학/기술
-INSERT INTO LIB_BOOK_INFO (B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER) 
-VALUES ('GYSTE2008C', 'Freakonomics', 'Steven D. Levitt & Stephen J. Dubner', 'William Morrow'); -- 과학/기술
-INSERT INTO LIB_BOOK_INFO (B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER) 
-VALUES ('GYSTE2005D', 'The Singularity Is Near', 'Ray Kurzweil', 'Viking'); -- 과학/기술
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYSTE1995A', 'The Selfish Gene', 'Richard Dawkins', 'Oxford University Press','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9780198788607.jpg'); -- 과학/기술
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYSTE2000B', 'A Brief History of Time', 'Stephen Hawking', 'Bantam Books','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9780553380163.jpg'); -- 과학/기술
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYSTE2008C', 'Freakonomics', 'Steven D. Levitt & Stephen J. Dubner', 'William Morrow','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9780061956270.jpg'); -- 과학/기술
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('GYSTE2005D', 'The Singularity Is Near', 'Ray Kurzweil', 'Viking','https://contents.kyobobook.co.kr/sih/fit-in/200x0/pdt/9780143037880.jpg'); -- 과학/기술
 -- 일본어 서적 (소설)
-INSERT INTO LIB_BOOK_INFO (B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER) 
-VALUES ('HJFIJ2016A', '너의 이름은.', 'Makoto Shinkai', '대원씨아이'); -- 소설
-INSERT INTO LIB_BOOK_INFO (B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER) 
-VALUES ('HJFIJ2003B', '스즈미야 하루히의 우울', '타니가와 나쓰키', '미래엔'); -- 소설
-INSERT INTO LIB_BOOK_INFO (B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER) 
-VALUES ('HJFIJ2006C', '클럽', '타카하시 요시유키', '북폴리오'); -- 소설
-INSERT INTO LIB_BOOK_INFO (B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER) 
-VALUES ('HJFIJ2008D', '카모메 식당', '히가시노 게이고', '소담출판사'); -- 소설
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJFIJ2022A', '맛있는 밥을 먹을 수 있도록', '타카세는 야부사코', '코단샤','https://contents.kyobobook.co.kr/sih/fit-in/300x0/pdt/9784065274095.jpg'); -- 소설
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJFIJ2016B', '또한 같은 꿈을 꾸고있었습니다.', '스미노 요루', '히바시','https://contents.kyobobook.co.kr/sih/fit-in/300x0/pdt/9784575239454.jpg'); -- 소설
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJFIJ2006C', '허구의 범죄', '히가시노 게이고', '판타지 윈터 하우스','https://contents.kyobobook.co.kr/sih/fit-in/300x0/pdt/9784344043732.jpg'); -- 소설
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJFIJ2008D', '도시와 그 불확실한 벽', '무라카미 하루키', '신시오샤','https://contents.kyobobook.co.kr/sih/fit-in/300x0/pdt/9784103534372.jpg'); -- 소설
 -- 일본어 서적 (시/에세이)
-INSERT INTO LIB_BOOK_INFO (B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER) 
-VALUES ('HJPEJ2009A', '백설공주에게 죽음을', 'S. J. 워드', '알에이치코리아'); -- 시/에세이
-INSERT INTO LIB_BOOK_INFO (B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER) 
-VALUES ('HJPEJ2008B', '엄마를 부탁해', '신경숙', '창비'); -- 시/에세이
-INSERT INTO LIB_BOOK_INFO (B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER) 
-VALUES ('HJPEJ2018C', '작별인사', '김영하', '문학동네'); -- 시/에세이
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJPEJ2023A', '점심시간', '마스다 밀리', '코단샤','https://contents.kyobobook.co.kr/sih/fit-in/300x0/pdt/9784065334683.jpg'); -- 시/에세이
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJPEJ2008B', '무심코 생각해 버린다', '요시타케 신스케', '신시오샤','https://contents.kyobobook.co.kr/sih/fit-in/300x0/pdt/9784103524519.jpg'); -- 시/에세이
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJPEJ2018C', '만기 너희들은 어떻게 살 수 있을까', '요시노 겐 미즈키', '매거진 하우스','https://contents.kyobobook.co.kr/sih/fit-in/300x0/pdt/9784838729470.jpg'); -- 시/에세이
 -- 일본어 서적 (과학/기술)
-INSERT INTO LIB_BOOK_INFO (B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER) 
-VALUES ('HJSTJ2014A', '에너지의 미래', '엘리자베스 코스트로프', '시공사'); -- 과학/기술
+INSERT INTO LIB_BOOK_INFO ( B_ID, B_TITLE, B_AUTHOR, B_PUBLISHER, B_IMG)
+VALUES ('HJSTJ2014A', '작은 나', '마스다 미리', '포플러 사','https://contents.kyobobook.co.kr/sih/fit-in/300x0/pdt/9784591174005.jpg'); -- 과학/기술
+
 
 
 --대출정보

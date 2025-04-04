@@ -1,29 +1,42 @@
-<<<<<<< HEAD
-=======
 
->>>>>>> fd32ab38fae0b7007cab47188199a881581494bf
 도서관
 
--회원정보
+-회원정보	LIB_MEMBER
 (회원코드, 이름, 전화번호, 생일, 대여가능권수)+연체여부+대여가능날짜(연체아니면 null)
 
--도서정보
+-도서정보	LIB_BOOK_INFO
 (책코드, 제목, 작가, 출판사, 대여상태) +권수
 
+2 2 1 4
 
-<<<<<<< HEAD
-=======
-
->>>>>>> fd32ab38fae0b7007cab47188199a881581494bf
--대여정보
+-대여정보	LIB_BOOK_RENTAL
 (대여코드, 회원코드, 책코드, 대여날짜, 반납기한, 대여상태, 반납일)
+대여 코드RENTAL_ID
+회원코드 (Member Code): MEMBER_ID
+책코드 (Book Code): BOOK_ID
+대여날짜 (Rental Date): RENTAL_DATE
+반납기한 (Return Due Date): RETURN_DUE_DATE
+대여상태 (Rental Status): RENTAL_STATUS
+반납일 (Return Date): RETURN_DATE
 
 
-<<<<<<< HEAD
-코드(도서관,장르,언어,출판연도) HJ/KI/K/2012  B01KIK2012
-HJ/GY
 
--장르 카테고리
+코드(도서관,장르,언어,출판연도) B01/S01/K/2012  B01S01K2012
+-장르 카테고리	
+(장르코드, 이름) 소설 S01
+
+-대빵도서관완전홈페이지	LIB_MAIN
+(도서관3개 코드, 이름) B01 B02 B03
+
+--언어	LIB_BOOK_LANGUAGE
+(언어코드, 언어종류) K E J 
+
+도서관 2개 : 합정 HJ, 고양 GY
+언어 : 한국어 K, 영어 E, 일본어 J
+장르 : 
+
+
+-장르 카테고리 LIB_BOOK_GENRE
 (장르코드, 이름)
 국내도서
 소설 시/에세이 취미/여행 만화 예술 수험서 인문/사회 경제/경영 잡지 과학/기술
@@ -33,41 +46,40 @@ HJ/GY
 
 일본도서 
 소설 예술 만화 잡지 인문/사회 과학/기술 어학/학습
-
-소설: KFI (Fiction)
-시/에세이: PE (Poetry & Essay)
-취미/여행: HT (Hobby & Travel)
-과학/기술: ST (Science & Technology)
-인문/사회: SH (Social & Humanities)
-경제/경영: EB (Economy & Business)
-수험서: TE (Test & Examination)
-예술: AT (Art)
-만화: CM (Comic)
-잡지: MZ (Magazine)
+소설 예술 만화 잡지 인분/사회 가확/기술 어학/학습
 
 
--대빵도서관완전홈페이지
-(도서관2개 코드, 이름) HJ / GY
-합정도서관, 고양도서관
+국내도서
+소설: FI (Korean Fiction)
+시/에세이: PE (Korean Poetry & Essay)
+취미/여행: HT (Korean Hobby & Travel)
+만화: CM (Korean Comic)
+예술: AT (Korean Art)
+수험서: TE (Korean Test & Examination)
+인문/사회: SH (Korean Social & Humanities)
+경제/경영: EB (Korean Economy & Business)
+잡지: MZ (Korean Magazine)
+과학/기술: ST (Korean Science & Technology)
 
---언어
-(언어코드, 언어종류) K E J 한국어 영어 일본어
+서양도서
+소설: FI (Western Fiction)
+시/에세이: PE (Western Poetry & Essay)
+취미/여행: HT (Western Hobby & Travel)
+만화: CM (Western Comic)
+예술: AT (Western Art)
+어학/학습: LL (Western Language & Learning)
+인문/사회: SH (Western Social & Humanities)
+경제/경영: EB (Western Economy & Business)
+잡지: MZ (Western Magazine)
+과학/기술: ST (Western Science & Technology)
+일본도서
+소설: FI (Japanese Fiction)
+예술: AT (Japanese Art)
+만화: CM (Japanese Comic)
+잡지: MZ (Japanese Magazine)
+인문/사회: SH (Japanese Social & Humanities)
+과학/기술: ST (Japanese Science & Technology)
+어학/학습: LL (Japanese Language & Learning)
 
 
 
-=======
-코드(도서관,장르,언어,출판연도) B01/S01/K/2012  B01S01K2012
--장르 카테고리
-(장르코드, 이름) 소설 S01
-
--대빵도서관완전홈페이지
-(도서관3개 코드, 이름) B01 B02 B03
-
---언어
-(언어코드, 언어종류) K E J C ETC
-
-
-
--언어코드
-(도서언어코드, 이름)
->>>>>>> fd32ab38fae0b7007cab47188199a881581494bf
