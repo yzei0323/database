@@ -73,7 +73,7 @@ drop table lib_book_rental;
 drop table lib_book_info;
 drop table lib_member;
 
-
+commit;
 
 
 
